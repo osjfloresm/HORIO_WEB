@@ -34,7 +34,9 @@ class AnonymizedRecord(models.Model):
     frecuencia_cardiaca = models.PositiveIntegerField()
     spo2 = models.DecimalField(max_digits=5, decimal_places=2)
     hrv = models.DecimalField(max_digits=7, decimal_places=2)
-    horas_sueno = models.DecimalField(max_digits=4, decimal_places=2)
+    horas_sueno = models.DecimalField(
+        max_digits=4, decimal_places=2, null=True, blank=True
+    )
 
     class Meta:
         db_table = table("open_science", "registros_anonimizados")

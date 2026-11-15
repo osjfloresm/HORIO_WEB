@@ -1,6 +1,6 @@
 # Contrato de sincronización Horion Edge ↔ Horion Web
 
-No se recibió el código de Horion Edge. Este contrato y el cliente de ejemplo permiten adaptar su cola SQLite sin suponer acceso al programa de escritorio.
+Implementación del lado Edge: `HORION-DESTOCK-BETA/backend_fastapi/app/cloud_sync.py` (cola SQLite `synced = 0`, lote en vuelo en `sync_pendiente`, reintento idéntico con backoff). Guía de despliegue: [despliegue.md](despliegue.md).
 
 ## Autenticación
 
@@ -43,6 +43,8 @@ digest = hashlib.sha256(canonical.encode('utf-8')).hexdigest()
 ```
 
 La representación numérica forma parte del contrato: para un productor no Python se recomienda serializar los decimales como cadenas (`"98.10"`) y los enteros como enteros. La misma estructura JSON debe producir los mismos bytes canónicos. Django valida y convierte los decimales después de comprobar el hash.
+
+`horas_sueno` es opcional y admite `null`: Edge solo la conoce después del primer registro de bienestar. Se conserva como nulo también en los datos liberados.
 
 Campos de `alertas`:
 

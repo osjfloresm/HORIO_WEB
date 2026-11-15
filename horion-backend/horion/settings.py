@@ -43,6 +43,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+if not DEBUG:
+    # Sirve /static/ (Django Admin) en el servicio desplegado, sin servidor aparte.
+    MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
 ROOT_URLCONF = "horion.urls"
 TEMPLATES = [
     {
@@ -85,6 +88,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOWED_ORIGINS = os.getenv(
     "CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000"
 ).split(",")
+# Django Admin con formularios por HTTPS en otro dominio (p. ej. https://api.onrender.com).
+CSRF_TRUSTED_ORIGINS = [
+    origin
+    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ["accounts.authentication.HorionAuthentication"],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
@@ -109,6 +118,9 @@ EDGE_API_KEY = os.getenv("EDGE_API_KEY", "")
 DEMO_MODE = os.getenv("DEMO_MODE", "true" if DEBUG else "false").lower() == "true"
 DATA_UPLOAD_MAX_MEMORY_SIZE = 12 * 1024 * 1024
 if not DEBUG:
+    # Render/Railway/Fly terminan TLS en su proxy y reenvían por HTTP con este
+    # encabezado; sin esto SECURE_SSL_REDIRECT produce un bucle de redirecciones.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "true") == "true"
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
@@ -116,17 +128,22 @@ if not DEBUG:
 
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
 SUPABASE_STORAGE_BUCKET = os.getenv("SUPABASE_STORAGE_BUCKET", "horion-documents")
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        "BACKEND": (
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+            if DEBUG
+            else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        )
+    },
+}
 if os.getenv("FILE_STORAGE", "local") == "supabase":
     if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
         raise ValueError(
             "Supabase Storage requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY."
         )
-    STORAGES = {
-        "default": {"BACKEND": "core.storage.SupabasePrivateStorage"},
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
-        },
-    }
+    STORAGES["default"] = {"BACKEND": "core.storage.SupabasePrivateStorage"}
 EMAIL_BACKEND = os.getenv(
     "EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"
 )

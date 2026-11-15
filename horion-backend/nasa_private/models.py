@@ -67,7 +67,9 @@ class Telemetry(models.Model):
     spo2 = models.DecimalField(max_digits=5, decimal_places=2)
     hrv = models.DecimalField(max_digits=7, decimal_places=2)
     temperatura_corporal = models.DecimalField(max_digits=4, decimal_places=2)
-    horas_sueno = models.DecimalField(max_digits=4, decimal_places=2)
+    horas_sueno = models.DecimalField(
+        max_digits=4, decimal_places=2, null=True, blank=True
+    )
 
     class Meta:
         db_table = table("nasa_private", "telemetria_cruda")

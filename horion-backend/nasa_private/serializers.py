@@ -25,8 +25,14 @@ class TelemetrySerializer(serializers.ModelSerializer):
     temperatura_corporal = serializers.DecimalField(
         max_digits=4, decimal_places=2, min_value=20, max_value=50
     )
+    # Edge solo la conoce después del primer registro de bienestar.
     horas_sueno = serializers.DecimalField(
-        max_digits=4, decimal_places=2, min_value=0, max_value=24
+        max_digits=4,
+        decimal_places=2,
+        min_value=0,
+        max_value=24,
+        allow_null=True,
+        required=False,
     )
 
     class Meta:

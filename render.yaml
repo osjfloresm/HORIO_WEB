@@ -1,0 +1,44 @@
+# Blueprint de Render para la API Django (el frontend va en Vercel).
+# Render → New → Blueprint → este repositorio. Las variables con `sync: false`
+# se piden al crear el servicio y nunca se guardan en Git.
+services:
+  - type: web
+    name: horion-api
+    runtime: python
+    rootDir: horion-backend
+    plan: free
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    # Las migraciones corren al arrancar porque el plan gratuito no tiene pre-deploy.
+    startCommand: python manage.py migrate --noinput && gunicorn horion.wsgi --bind 0.0.0.0:$PORT --workers 2 --timeout 60
+    healthCheckPath: /api/v1/opportunities/status/
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DJANGO_DEBUG
+        value: "false"
+      - key: DEMO_MODE
+        value: "false"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      # Clave compartida con la app de escritorio (EDGE_API_KEY en su .env).
+      - key: EDGE_API_KEY
+        generateValue: true
+      # Supabase → Project Settings → Database → Connection string (Session pooler), con ?sslmode=require
+      - key: DATABASE_URL
+        sync: false
+      # p. ej. horion-api.onrender.com
+      - key: DJANGO_ALLOWED_HOSTS
+        sync: false
+      # p. ej. https://horion-api.onrender.com
+      - key: CSRF_TRUSTED_ORIGINS
+        sync: false
+      # Dominio exacto de Vercel, p. ej. https://horion.vercel.app (sin barra final)
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      # El disco de Render se borra en cada deploy: los PDF deben ir a Supabase Storage.
+      - key: FILE_STORAGE
+        value: supabase
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false

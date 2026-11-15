@@ -33,6 +33,7 @@ export function MetricChart({
   const daily = new Map()
   if (aggregate) {
     for (const row of records) {
+      if (row[metric] == null) continue // Sin dato (p. ej. sueño aún no registrado).
       const day = new Date(row.timestamp_utc).toISOString().slice(0, 10)
       const current = daily.get(day) || { total: 0, count: 0 }
       daily.set(day, { total: current.total + Number(row[metric]), count: current.count + 1 })
@@ -46,7 +47,7 @@ export function MetricChart({
     : records
   const points = series.map((row, index) => ({
     ...row,
-    value: Number(row[metric]),
+    value: row[metric] == null ? null : Number(row[metric]),
     x: publicData
       ? `D${row.dia_mision}`
       : row.timestamp_utc
@@ -120,7 +121,9 @@ export function MetricChart({
   )
 }
 export function CorrelationChart({ records, xMetric, yMetric }) {
-  const points = records.map((row) => ({ x: Number(row[xMetric]), y: Number(row[yMetric]) }))
+  const points = records
+    .filter((row) => row[xMetric] != null && row[yMetric] != null)
+    .map((row) => ({ x: Number(row[xMetric]), y: Number(row[yMetric]) }))
   if (!points.length) return <Empty title="Sin datos para cruzar variables" />
   return (
     <>

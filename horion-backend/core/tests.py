@@ -221,6 +221,54 @@ class PlatformTests(APITestCase):
         self.assertEqual(SyncBatch.objects.count(), 1)
         self.assertEqual(Telemetry.objects.count(), 1)
 
+    def test_ingestion_accepts_edge_batch_with_unknown_sleep(self):
+        # Formato exacto de HORION-DESTOCK-BETA/backend_fastapi/app/cloud_sync.py.
+        payload = {
+            "codigo_astronauta": "AST-1",
+            "registros": [
+                {
+                    "timestamp_utc": (self.now - timedelta(hours=1)).isoformat(),
+                    "frecuencia_cardiaca": 112,
+                    "spo2": "89.00",
+                    "hrv": "24.00",
+                    "temperatura_corporal": "36.80",
+                    "horas_sueno": None,
+                }
+            ],
+            "alertas": [
+                {
+                    "timestamp_utc": (self.now - timedelta(hours=1)).isoformat(),
+                    "nivel_severidad": "CRITICAL",
+                    "metrica_afectada": "spo2",
+                    "valor_detectado": "89.00",
+                    "recomendacion_entregada": "Respira despacio.",
+                    "modo_generacion": "OFFLINE_ALGO",
+                }
+            ],
+            "orbi": [
+                {
+                    "timestamp_utc": (self.now - timedelta(hours=1)).isoformat(),
+                    "rol": "user",
+                    "mensaje": "Me falta el aire",
+                    "contexto_biometrico_json": {"spo2": 89},
+                }
+            ],
+        }
+        body = {"payload": payload, "hash_sha256": payload_digest(payload)}
+        with override_settings(EDGE_API_KEY="test-edge-secret"):
+            response = self.client.post(
+                "/api/v1/sync/ingest/",
+                body,
+                format="json",
+                HTTP_X_EDGE_KEY="test-edge-secret",
+            )
+        self.assertEqual(response.status_code, 201, response.data)
+        batch = SyncBatch.objects.get(pk=response.data["id"])
+        self.assertIsNone(batch.registros.get().horas_sueno)
+        # La liberación pública conserva el dato faltante como nulo.
+        repo, _ = release(batch.pk, "Sin sueño", "Desc", self.users["NASA_ADMIN"])
+        self.assertIsNone(repo.registros.get().horas_sueno)
+
     def test_ingestion_rejects_tampering_and_invalid_ranges(self):
         self.login_as("NASA_ADMIN")
         bad = {
