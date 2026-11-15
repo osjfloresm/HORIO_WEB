@@ -8,6 +8,19 @@ from django.core.files.storage import Storage
 from django.utils.deconstruct import deconstructible
 
 
+def auth_headers(key):
+    """Cabeceras de autenticación para Supabase.
+
+    Claves nuevas (`sb_secret_...`): van solo en `apikey`; no son un JWT y no
+    deben enviarse como `Authorization: Bearer`. Clave antigua `service_role`
+    (un JWT, `eyJ...`): se envía en ambas cabeceras, como antes.
+    """
+    headers = {"apikey": key}
+    if key.startswith("eyJ"):
+        headers["Authorization"] = f"Bearer {key}"
+    return headers
+
+
 @deconstructible
 class SupabasePrivateStorage(Storage):
     def _request(self, method, name, **kwargs):
@@ -16,8 +29,7 @@ class SupabasePrivateStorage(Storage):
             method,
             endpoint,
             headers={
-                "Authorization": f"Bearer {settings.SUPABASE_SERVICE_ROLE_KEY}",
-                "apikey": settings.SUPABASE_SERVICE_ROLE_KEY,
+                **auth_headers(settings.SUPABASE_SERVICE_ROLE_KEY),
                 "Content-Type": "application/pdf",
                 "x-upsert": "false",
             },
