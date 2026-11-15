@@ -27,8 +27,8 @@ Vercel solo sirve el frontend estático. Django va en Render porque necesita un 
 | Variable | Valor |
 |---|---|
 | `DATABASE_URL` | URI del paso 1 |
-| `DJANGO_ALLOWED_HOSTS` | `horion-api.onrender.com` (el dominio que te asigne Render) |
-| `CSRF_TRUSTED_ORIGINS` | `https://horion-api.onrender.com` |
+| `DJANGO_ALLOWED_HOSTS` | Déjala vacía: el dominio `*.onrender.com` se añade solo. Solo si usas un dominio propio. |
+| `CSRF_TRUSTED_ORIGINS` | Igual: vacía salvo con dominio propio (`https://api.tudominio.com`). |
 | `CORS_ALLOWED_ORIGINS` | `https://TU-PROYECTO.vercel.app` (exacto, sin barra final) |
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | de Supabase → API |
 
@@ -44,7 +44,7 @@ DATABASE_URL="postgresql://...pooler.supabase.com:5432/postgres?sslmode=require"
 5. Entra en `https://horion-api.onrender.com/admin/` y haz lo siguiente:
    - En **Profiles**, asigna a tu usuario el rol `NASA_ADMIN` para ver la consola de telemetría.
    - Crea la **misión** con el mismo código que la app (por defecto `ARTEMIS-IV`). Pon una **fecha de inicio anterior a la primera lectura de la app**. La app siembra 13 días de historial, así que usa al menos 14 días antes de hoy. Si no, la web rechaza el lote con «Las lecturas no pueden preceder al inicio de la misión».
-   - Crea el **astronauta** con el mismo `codigo_astronauta` que la tabla `astronauta` de la app (por defecto `AST-001`).
+   - Una vez disponible el frontend, entra en **Consola NASA → Astronautas** y crea el perfil con el mismo código que envía el escritorio (por defecto `AST-001`), asignándole esa misión. Si el código ya existe, edita ese perfil. También puede administrarse desde Django Admin.
 
 ## 3. Frontend React (Vercel)
 

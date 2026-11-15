@@ -9,6 +9,8 @@ from opportunities.views import PublicCallViewSet, ApplicationViewSet, status, s
 from core.views import overview
 
 router = DefaultRouter()
+router.register("nasa/astronautas", nasa.AstronautViewSet, basename="astronauts")
+router.register("nasa/misiones", nasa.MissionViewSet, basename="missions")
 router.register("nasa/lotes", nasa.BatchViewSet, basename="batches")
 router.register("nasa/investigaciones", nasa.ResearchViewSet, basename="research")
 router.register("nasa/moderacion", nasa.ModerationViewSet, basename="moderation")

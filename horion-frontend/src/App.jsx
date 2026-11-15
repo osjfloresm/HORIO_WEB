@@ -8,6 +8,7 @@ const Landing = lazy(() => import('./pages/public/Landing'))
 const Auth = lazy(() => import('./pages/public/Auth'))
 const NotFound = lazy(() => import('./pages/public/NotFound'))
 const Telemetry = lazy(() => import('./pages/nasa/Telemetry'))
+const Astronauts = lazy(() => import('./pages/nasa/Astronauts'))
 const ResearchLab = lazy(() => import('./pages/nasa/ResearchLab'))
 const DataRelease = lazy(() => import('./pages/nasa/DataRelease'))
 const Moderation = lazy(() => import('./pages/nasa/Moderation'))
@@ -41,6 +42,7 @@ function RouteEffects() {
       '/login': 'Iniciar sesión',
       '/register': 'Crear cuenta',
       '/nasa-admin/telemetry': 'Control de misión',
+      '/nasa-admin/astronauts': 'Astronautas',
       '/nasa-admin/research-lab': 'Laboratorio clínico',
       '/nasa-admin/data-release': 'Liberación de datos',
       '/nasa-admin/moderation': 'Moderación científica',
@@ -74,6 +76,7 @@ export default function App() {
                   element={<Navigate to="/nasa-admin/telemetry" replace />}
                 />
                 <Route path="nasa-admin/telemetry" element={<Telemetry />} />
+                <Route path="nasa-admin/astronauts" element={<Astronauts />} />
                 <Route path="nasa-admin/research-lab" element={<ResearchLab />} />
                 <Route path="nasa-admin/data-release" element={<DataRelease />} />
                 <Route path="nasa-admin/moderation" element={<Moderation />} />

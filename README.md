@@ -1,6 +1,6 @@
 # Horion · Plataforma de investigación espacial
 
-Aplicación completa en **React + Vite + Tailwind CSS** y **Django + Django REST Framework**. Incluye las 12 pantallas de la especificación, inicio de sesión, estado de convocatorias cerrado y página 404. Diseño oscuro basado en UI UX Pro Max y en la identidad indicada en `web_horion.md`.
+Aplicación completa en **React + Vite + Tailwind CSS** y **Django + Django REST Framework**. Incluye las pantallas de la especificación, gestión de astronautas, inicio de sesión, estado de convocatorias cerrado y página 404. Diseño oscuro basado en UI UX Pro Max y en la identidad indicada en `web_horion.md`.
 
 Los datos incluidos son **sintéticos**. Este proyecto no está afiliado oficialmente con NASA. Se implementa en este repositorio local; el backend Django requiere un servidor Python y no se despliega como un sitio estático.
 
@@ -41,7 +41,7 @@ Contraseña si utilizaste el comando anterior: `HorionDemo2026!`.
 
 | Correo | Rol | Acceso |
 | --- | --- | --- |
-| `admin@horion.demo` | `NASA_ADMIN` | Cinco pantallas de consola y Django Admin |
+| `admin@horion.demo` | `NASA_ADMIN` | Seis pantallas de consola y Django Admin |
 | `researcher@horion.demo` | `RESEARCHER` | Repositorios y envío de aportaciones |
 | `professional@horion.demo` | `PROFESSIONAL` | Postulaciones con especialidad, experiencia y CV |
 | `enterprise@horion.demo` | `ENTERPRISE` | Postulaciones con categoría, TRL, cotización y ficha técnica |
@@ -58,7 +58,7 @@ horion-frontend/src/
   context/AppContext.jsx     # Sesión, estado del portal y avisos
   lib/                       # Cliente API, hooks, formatos y traducciones
   pages/public/              # Portada, acceso, registro y 404
-  pages/nasa/                # Las cinco pantallas administrativas
+  pages/nasa/                # Las seis pantallas administrativas
   pages/science/             # Repositorios y aportaciones
   pages/opportunities/       # Tablero, formulario, seguimiento y portal cerrado
   App.jsx                    # Rutas y restricciones por rol
@@ -82,6 +82,7 @@ Consulta [la matriz de pantallas](docs/pantallas.md), [la guía de edición y de
 - Sincronización autenticada, SHA-256 recalculado, validación de biomarcadores e idempotencia. Recepción de alertas y transcripciones de Edge.
 - Consulta de protocolos aprobados y acuses de lotes para que Edge pueda sincronizar de vuelta.
 - Telemetría, filtros de misión, gráficas, transcripciones y edición de protocolos clínicos.
+- Gestión de astronautas desde **Consola NASA → Astronautas**: crear/editar el perfil, asignar una misión existente y vincular los datos mediante el código que envía el escritorio. Muestra el primer vínculo confirmado y la última sincronización; no crea cuentas de acceso para el escritorio. Si ya existe `AST-001`, edita ese perfil. Tras recibir datos se conservan el código y la misión para proteger su historial.
 - Inspector privado/público, publicación transaccional, exportación CSV/JSON y catálogo filtrable.
 - Aportaciones con PDF/DOI, estados de moderación y feedback visible para el autor.
 - Interruptor de portal, creador/editor de convocatorias, evaluación y filtros por TRL, presupuesto y especialidad.
@@ -116,6 +117,8 @@ Para mantener el formato: `npm run format` en frontend; en backend, instala `req
 
 La primera vez que se ejecutan pruebas de navegador puede ser necesario `npx playwright install chromium`. Playwright usa puertos 3011 y 8011 y una base temporal; no modifica la base de desarrollo. Comprueba navegación, formularios, roles, descarga, liberación, moderación, postulaciones, portal cerrado, responsive y accesibilidad automática.
 
+También puedes probar con Google Chrome instalado: en PowerShell define `$env:PLAYWRIGHT_CHANNEL='chrome'` antes de `npm test`. La configuración detecta el ejecutable de Python del entorno virtual en Windows o Linux/macOS.
+
 ## Edición manual frecuente
 
 | Cambio | Lugar |
@@ -124,7 +127,9 @@ La primera vez que se ejecutan pruebas de navegador puede ser necesario `npx pla
 | Colores, tamaños y tipografías | `src/index.css` y `design-system/horion/MASTER.md` |
 | Menús | `src/config/navigation.js` |
 | Campos de un formulario | Página correspondiente + serializer Django |
-| Registros de misiones, astronautas o convocatorias | Django Admin `/admin/` |
+| Perfiles de astronautas y vínculo con el escritorio | Consola NASA → Astronautas |
+| Registros de misiones | Django Admin `/admin/` |
+| Convocatorias | Consola NASA → Gestor de convocatorias |
 | Reglas de negocio | Servicios y serializers del módulo correspondiente |
 | Conexiones, secretos, correo y almacenamiento | `horion-backend/.env` |
 | Nuevas columnas en la base | `models.py`, `makemigrations`, `migrate` |

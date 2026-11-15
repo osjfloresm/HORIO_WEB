@@ -8,6 +8,7 @@ Las rutas se conservan según la especificación original. Se añaden login y 40
 | `/register` | `public/Auth.jsx` | Tres perfiles; institución/ORCID, especialidad/ORCID o razón social/ID fiscal/sector |
 | `/login` | `public/Auth.jsx` | JWT; redirección por rol o regreso al formulario solicitado |
 | `/nasa-admin/telemetry` | `nasa/Telemetry.jsx` | Lotes con hash, tripulación, últimas lecturas, alertas offline y transcripciones Orbi |
+| `/nasa-admin/astronauts` | `nasa/Astronauts.jsx` | Crear/editar perfiles, asignar misión y código del escritorio; buscar tripulantes y consultar última sincronización |
 | `/nasa-admin/research-lab` | `nasa/ResearchLab.jsx` | Cruce interactivo de biomarcadores; crear y editar protocolos y estado |
 | `/nasa-admin/data-release` | `nasa/DataRelease.jsx` | Pendientes/publicados, inspector antes/después y publicación confirmada |
 | `/nasa-admin/moderation` | `nasa/Moderation.jsx` | Filtros por estado; leer PDF, DOI; aprobar o rechazar con feedback |

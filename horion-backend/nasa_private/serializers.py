@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.utils import timezone
+from rest_framework.validators import UniqueValidator
 from .models import (
     Mission,
     Astronaut,
@@ -102,6 +104,61 @@ class AstronautSerializer(serializers.ModelSerializer):
             "ultima_sincronizacion",
             "ultima_lectura",
         ]
+
+
+class AstronautManagementSerializer(serializers.ModelSerializer):
+    codigo_astronauta = serializers.CharField(
+        max_length=50,
+        validators=[
+            UniqueValidator(
+                queryset=Astronaut.objects.all(),
+                message="Este código ya tiene un perfil. Busca ese astronauta y edítalo.",
+            )
+        ],
+    )
+    codigo_mision = serializers.CharField(source="mision.codigo_mision", read_only=True)
+    vinculo_confirmado = serializers.SerializerMethodField()
+
+    def get_vinculo_confirmado(self, obj):
+        return obj.ultima_sincronizacion is not None
+
+    def validate_fecha_nacimiento(self, value):
+        if value > timezone.localdate():
+            raise serializers.ValidationError(
+                "La fecha de nacimiento no puede ser futura."
+            )
+        return value
+
+    def validate(self, data):
+        # Ingestion locks the same astronaut while attaching a batch. Once data
+        # has arrived, changing this association would move existing history.
+        if self.instance and self.instance.ultima_sincronizacion:
+            errors = {}
+            for field in ("codigo_astronauta", "mision"):
+                if field in data and data[field] != getattr(self.instance, field):
+                    errors[field] = (
+                        "Este vínculo ya recibió datos. Conserva el código y la misión "
+                        "para mantener su historial."
+                    )
+            if errors:
+                raise serializers.ValidationError(errors)
+        return data
+
+    class Meta:
+        model = Astronaut
+        fields = [
+            "id",
+            "codigo_astronauta",
+            "nombre_completo",
+            "mision",
+            "codigo_mision",
+            "fecha_nacimiento",
+            "grupo_sanguineo",
+            "alergias",
+            "ultima_sincronizacion",
+            "vinculo_confirmado",
+        ]
+        read_only_fields = ["ultima_sincronizacion"]
 
 
 class ResearchSerializer(serializers.ModelSerializer):

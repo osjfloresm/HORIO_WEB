@@ -12,7 +12,9 @@ SHA-256 es una **suma de integridad**, no una firma digital ni un sustituto de a
 
 `POST /api/v1/sync/ingest/`
 
-Primero registra la misión y astronauta en Django Admin. `codigo_astronauta` debe coincidir con la clave de Edge. El cuerpo incluye `payload` y su `hash_sha256`.
+Primero registra la misión en Django Admin y el astronauta en **Consola NASA → Astronautas** (`/nasa-admin/astronauts`). `codigo_astronauta` debe coincidir exactamente con el código que envía Edge; es independiente del secreto `EDGE_API_KEY`. El cuerpo incluye `payload` y su `hash_sha256`.
+
+La gestión web usa `GET/POST /api/v1/nasa/astronautas/`, `GET/PATCH /api/v1/nasa/astronautas/{id}/` y `GET /api/v1/nasa/misiones/`, todos exclusivos de `NASA_ADMIN`. Crear el perfil no modifica la configuración del equipo ni crea un usuario con contraseña. Si el código ya existe, edita su perfil. `vinculo_confirmado` pasa a `true` cuando el servidor registra un envío; `ultima_sincronizacion` indica cuándo. Después del primer envío, código y misión quedan fijos en esta API para conservar la asociación del historial. Los demás datos del perfil siguen siendo editables.
 
 ```json
 {

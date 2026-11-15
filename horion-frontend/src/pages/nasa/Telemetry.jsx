@@ -110,6 +110,9 @@ export default function Telemetry() {
               <Panel
                 title="Tripulación de la misión"
                 subtitle="Última lectura disponible por astronauta"
+                action={
+                  <SectionLink to="/nasa-admin/astronauts">Gestionar astronautas</SectionLink>
+                }
               >
                 <div className="crew-list">
                   {data.astronauts.map((person) => (

@@ -1,10 +1,15 @@
 import { defineConfig } from '@playwright/test'
+const python =
+  process.platform === 'win32'
+    ? '../horion-backend/venv/Scripts/python.exe'
+    : '../horion-backend/venv/bin/python'
 export default defineConfig({
   testDir: './tests',
   fullyParallel: false,
   workers: 1,
   timeout: 45000,
   use: {
+    channel: process.env.PLAYWRIGHT_CHANNEL || undefined,
     baseURL: 'http://127.0.0.1:3011',
     viewport: { width: 1440, height: 1000 },
     screenshot: 'only-on-failure',
@@ -12,7 +17,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: '../horion-backend/venv/bin/python ../horion-backend/scripts/e2e_server.py',
+      command: `"${python}" ../horion-backend/scripts/e2e_server.py`,
       url: 'http://127.0.0.1:8011/api/health/',
       timeout: 90000,
       reuseExistingServer: false,

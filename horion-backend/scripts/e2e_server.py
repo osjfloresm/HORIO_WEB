@@ -16,6 +16,7 @@ with tempfile.TemporaryDirectory(prefix="horion-e2e-") as directory:
         "DEMO_MODE": "true",
         "AUTH_PROVIDER": "django",
         "FILE_STORAGE": "local",
+        "EDGE_API_KEY": "horion-e2e-edge-key",
         "HORION_MEDIA_ROOT": f"{directory}/media",
     }
     for args in [

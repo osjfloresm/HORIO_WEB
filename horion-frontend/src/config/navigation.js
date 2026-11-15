@@ -8,9 +8,11 @@ import {
   BookOpen,
   BriefcaseBusiness,
   Send,
+  Users,
 } from 'lucide-react'
 export const nasaNavigation = [
   { to: '/nasa-admin/telemetry', label: 'Control de misión', icon: Activity },
+  { to: '/nasa-admin/astronauts', label: 'Astronautas', icon: Users },
   { to: '/nasa-admin/research-lab', label: 'Laboratorio clínico', icon: FlaskConical },
   { to: '/nasa-admin/data-release', label: 'Liberación de datos', icon: ShieldCheck },
   { to: '/nasa-admin/moderation', label: 'Moderación científica', icon: ClipboardCheck },

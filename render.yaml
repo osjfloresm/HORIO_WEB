@@ -10,7 +10,8 @@ services:
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
     # Las migraciones corren al arrancar porque el plan gratuito no tiene pre-deploy.
     startCommand: python manage.py migrate --noinput && gunicorn horion.wsgi --bind 0.0.0.0:$PORT --workers 2 --timeout 60
-    healthCheckPath: /api/v1/opportunities/status/
+    # Endpoint mínimo, sin base de datos y exento de la redirección a HTTPS.
+    healthCheckPath: /api/health/
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.8
@@ -26,10 +27,10 @@ services:
       # Supabase → Project Settings → Database → Connection string (Session pooler), con ?sslmode=require
       - key: DATABASE_URL
         sync: false
-      # p. ej. horion-api.onrender.com
+      # Opcionales: el dominio *.onrender.com se añade solo (RENDER_EXTERNAL_HOSTNAME).
+      # Rellénalas únicamente si usas un dominio propio.
       - key: DJANGO_ALLOWED_HOSTS
         sync: false
-      # p. ej. https://horion-api.onrender.com
       - key: CSRF_TRUSTED_ORIGINS
         sync: false
       # Dominio exacto de Vercel, p. ej. https://horion.vercel.app (sin barra final)

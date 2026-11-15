@@ -27,6 +27,7 @@ from .models import (
 from .serializers import (
     MissionSerializer,
     AstronautSerializer,
+    AstronautManagementSerializer,
     BatchSerializer,
     TelemetrySerializer,
     AlertSerializer,
@@ -34,6 +35,44 @@ from .serializers import (
     ResearchSerializer,
 )
 from .services import ingest, release, public_rows
+
+
+class MissionViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = MissionSerializer
+    permission_classes = [IsNasaAdmin]
+    queryset = Mission.objects.order_by("codigo_mision")
+
+
+class AstronautViewSet(viewsets.ModelViewSet):
+    serializer_class = AstronautManagementSerializer
+    permission_classes = [IsNasaAdmin]
+    http_method_names = ["get", "post", "patch", "head", "options"]
+    queryset = Astronaut.objects.select_related("mision").order_by(
+        "nombre_completo", "id"
+    )
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.action in ("update", "partial_update"):
+            qs = qs.select_for_update()
+        return qs
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @transaction.atomic
+    def perform_create(self, serializer):
+        obj = serializer.save()
+        AuditEvent.objects.create(
+            actor=self.request.user, action="ASTRONAUT_CREATED", object_id=str(obj.pk)
+        )
+
+    def perform_update(self, serializer):
+        obj = serializer.save()
+        AuditEvent.objects.create(
+            actor=self.request.user, action="ASTRONAUT_UPDATED", object_id=str(obj.pk)
+        )
 
 
 @api_view(["POST"])

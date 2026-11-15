@@ -63,14 +63,20 @@ test('public pages, responsive landing, registration variants and accessible nav
   expect(errors).toEqual([])
 })
 
-test('admin can navigate all five screens, create protocol and inspect publication', async ({
+test('admin can navigate the console, create protocol and inspect publication', async ({
   page,
 }) => {
   const errors = []
   page.on('pageerror', (error) => errors.push(error.message))
+  const telemetryResponse = page.waitForResponse(
+    (response) => response.url().endsWith('/api/v1/nasa/telemetry/') && response.ok(),
+  )
   await login(page, 'admin')
   await expect(page.getByRole('heading', { name: 'Control de misión', exact: true })).toBeVisible()
-  await expect(page.locator('.stat').first()).toContainText('240')
+  const telemetry = await (await telemetryResponse).json()
+  await expect(page.locator('.stat').first()).toContainText(
+    new Intl.NumberFormat('es-EC').format(telemetry.counts.records),
+  )
   await page.screenshot({ path: 'test-results/telemetry-desktop.png', fullPage: true })
   const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()
   expect(audit.violations).toEqual([])
